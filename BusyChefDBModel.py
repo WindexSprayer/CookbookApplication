@@ -26,7 +26,7 @@ import re
 global ingredientsdf, recipedf, stepsdf
 filename = 'cookbook.xlsx' #filename
 #column namesfor our dataframes
-columnsRecipes = ['RecipeID', 'RecipeName', 'Description', 'tags', 'foodCat', 'cuisine', 'prepTime','cookTime', 'servings']
+columnsRecipes = ['RecipeID', 'RecipeName', 'Description', 'tags', 'foodCat', 'cuisine', 'prepTime','cookTime', 'servings', 'numIngred', 'numInstruct' ]
 columnsIngredients = ['IngredListID', 'Name', 'Amount', 'Unit']
 columnsSteps = ['StepListID', 'StepNum', 'Instruction']
 
@@ -43,8 +43,10 @@ def open_cookbook():
         ingredientsdf = pd.DataFrame(columns = columnsIngredients) #create a dataframe for ingredients, recipes, steps
         recipedf = pd.DataFrame(columns = columnsRecipes)
         stepsdf = pd.DataFrame(columns = columnsSteps)
-
-        save_dfs()#save the dataframes to the excel file
+    ingredientsdf = ingredientsdf.fillna("")
+    recipedf = recipedf.fillna("")
+    stepsdf = stepsdf.fillna("")
+    save_dfs()#save the dataframes to the excel file
     return #end of open_cookbook function
 
 #this function will save the dataframes to the excel file, and reopen them
@@ -63,6 +65,8 @@ def save_dfs():
     ingredientsdf = pd.read_excel(filename, sheet_name='Ingredients')
     recipedf = pd.read_excel(filename, sheet_name='Recipe')
     stepsdf = pd.read_excel(filename, sheet_name='Steps')
+    recipedf = recipedf.fillna("")
+
     return #end of save_dfs function
 
 #this function will be called when displaying the dropdown menu of recipes for the user to select
