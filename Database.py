@@ -8,7 +8,8 @@
 #   addRecipe(recipeInformation) --adds recipe information, given a dictionary formated like the one in getRecipeInformation
 #   deleteRecipe(recipeName) --deletes a recipe from the database, given a recipe name
 #   editRecipe(recipeInformation, recipeName) --deletes a recipe from the database of a given name, then adds the updated recipe
-
+#   editSteps(newSteps, recipeName) -- updates existing steps given the new steps (in a list of steps), and the recipes name
+#   editIngredients(newIngredients, recipeName) -- updates existing ingredients given the new ingredients (list of dictionaries), and the recipe name
 ###################################################################################################################################
 import pandas as pd
 #Allows pandas to write to excel
@@ -26,7 +27,7 @@ import re
 global ingredientsdf, recipedf, stepsdf
 filename = 'cookbook.xlsx' #filename
 #column namesfor our dataframes
-columnsRecipes = ['RecipeID', 'RecipeName', 'Description', 'tags', 'foodCat', 'cuisine', 'prepTime','cookTime', 'servings']
+columnsRecipes = ['RecipeID', 'RecipeName', 'Description', 'tags', 'foodCat', 'cuisine', 'prepTime','cookTime', 'servings','numIngred','numSteps']
 columnsIngredients = ['IngredListID', 'Name', 'Amount', 'Unit']
 columnsSteps = ['StepListID', 'StepNum', 'Instruction']
 
@@ -67,7 +68,7 @@ def save_dfs():
 
 #this function will be called when displaying the dropdown menu of recipes for the user to select
 def getRecipeList(): #function creates a list of the recipes
-    recipeList = list(recipedf["Name"])
+    recipeList = list(recipedf["RecipeName"])
     return recipeList   #end of getRecipeList
 
 def getRecipeInformation(recipeName):
@@ -102,6 +103,7 @@ def addRecipe(recipeInformation):
 
     recipe = recipeInformation #get the recipe information from the dictionary (what is left of the dictionary)
     listID = len(recipedf) + 1 #create the unique id num for the recipe information
+
     recipeID = {'RecipeID': len(recipedf) + 1} 
     recipe.update(recipeID) #add the id num to the recipe information
     recipedf.loc[len(recipedf) + 1] = recipe #save to recipedf
@@ -132,15 +134,49 @@ def deleteRecipe(recipeName):
     return  #end of addRecipe function
 
 def editRecipe(recipeInformation, recipeName):
-    deleteRecipe(recipeName)
-    addRecipe(recipeInformation)
+    global ingredientsdf, recipedf, stepsdf, filename #use global variables
+    recipe = recipedf.loc[recipedf['RecipeName'] == recipeName] #find the existing recipe
+    id = recipe.iloc[0]['RecipeID'] #find the existing ID number, so we can replace the recipe information
+    recipeInformation.update({'RecipeID': id} ) #update the given information to use the previous recipeID -- allowing us to keep 
+                                                #the same ingredients and steps
+    recipedf = recipedf.drop(recipedf[recipedf['RecipeName'] == recipeName].index) #delete the old information
+    recipedf.loc[len(recipedf) + 1] = recipeInformation #save the new information
     save_dfs()
     return  #end of addRecipe function
+
+def editSteps(newSteps, recipeName):
+    global ingredientsdf, recipedf, stepsdf, filename
+    recipe = recipedf.loc[recipedf['RecipeName'] == recipeName]  #find the existing recipe id number
+    id = recipe.iloc[0]['RecipeID'] #find the id number
+    stepsdf = stepsdf.drop(stepsdf[stepsdf['StepListID'] == id].index) #delete the old steps
+
+    itemNum = 1
+    steps = []
+    for item in newSteps:
+        steps.append( {'StepListID':id,'StepNum': itemNum,'Instruction': item})
+        itemNum += 1
+    newStepsdf = pd.DataFrame(columns = columnsSteps, data = steps) 
+    stepsdf = pd.concat([stepsdf, newStepsdf], ignore_index = True)#save to the stepsdf
+    save_dfs()
+    return
+
+def editIngredients(newIngredients, recipeName):
+    global ingredientsdf, recipedf, stepsdf, filename
+    recipe = recipedf.loc[recipedf['RecipeName'] == recipeName]  #find the existing recipe id number
+    id = recipe.iloc[0]['RecipeID'] #find the id number
+    ingredientsdf = ingredientsdf.drop(ingredientsdf[ingredientsdf['IngredListID'] == id].index) #delete the old ingredients
+    for item in newIngredients:
+        item.update({"IngredListID":id})
+    newIngreddf = pd.DataFrame(columns = columnsIngredients, data = newIngredients)
+    ingredientsdf = pd.concat([ingredientsdf, newIngreddf], ignore_index = True) #save to the ingredientsdf
+    save_dfs()
+    return
 ############################################################################################################
 #
 #
 #
 #                           The following are used for testing
+
 def getIngredientsdf(): 
     global ingredientsdf
     return ingredientsdf
