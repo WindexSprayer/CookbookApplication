@@ -151,11 +151,11 @@ def editSteps(newSteps, recipeName):
     stepsdf = stepsdf.drop(stepsdf[stepsdf['StepListID'] == id].index) #delete the old steps
 
     itemNum = 1
-    steps = []
+    steps = [] #create a list, so we can create a list of dictionaries containing the step information
     for item in newSteps:
         steps.append( {'StepListID':id,'StepNum': itemNum,'Instruction': item})
         itemNum += 1
-    newStepsdf = pd.DataFrame(columns = columnsSteps, data = steps) 
+    newStepsdf = pd.DataFrame(columns = columnsSteps, data = steps) #create a df from the list of dictionaries with new steps
     stepsdf = pd.concat([stepsdf, newStepsdf], ignore_index = True)#save to the stepsdf
     save_dfs()
     return
@@ -166,11 +166,12 @@ def editIngredients(newIngredients, recipeName):
     id = recipe.iloc[0]['RecipeID'] #find the id number
     ingredientsdf = ingredientsdf.drop(ingredientsdf[ingredientsdf['IngredListID'] == id].index) #delete the old ingredients
     for item in newIngredients:
-        item.update({"IngredListID":id})
-    newIngreddf = pd.DataFrame(columns = columnsIngredients, data = newIngredients)
-    ingredientsdf = pd.concat([ingredientsdf, newIngreddf], ignore_index = True) #save to the ingredientsdf
-    save_dfs()
+        item.update({"IngredListID":id}) #modify the existing dictionary to contain the existing id number that is associated with recipe and steps
+    newIngreddf = pd.DataFrame(columns = columnsIngredients, data = newIngredients) #create a df of newIngredients
+    ingredientsdf = pd.concat([ingredientsdf, newIngreddf], ignore_index = True) #save to the ingredientsdf 
+    save_dfs() 
     return
+
 ############################################################################################################
 #
 #
