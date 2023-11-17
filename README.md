@@ -45,16 +45,17 @@ This application can be a convenient way to meal plan, prep, and cook, which can
 ## Technical Details: 
 
 ### Tools:  
-
-SQL for database management 
-
-Visual Studio 2019: ASP.NET with C# for Web App Development 
-
+Python
+Visual Studio Code
+Microsoft Excel
+Pandas
+PyWebIO
 ### Resources: 
-MySQL  
+Pandas
+PyWebIO
 
 ### Programming Languages:
-C#, SQL 
+Python
 
 ### Challenges: 
 
